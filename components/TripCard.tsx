@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Trip, CATEGORIES, TripItem, LocationPoint, ItineraryItem } from '../types';
-import { formatCurrency, calculateDistance, getDatesInRange, getMonthDifference, getDaysDifference } from '../utils/geo';
+import { formatCurrency, calculateDistance, getDatesInRange, getMonthDifference, getDaysDifference, generateUUID } from '../utils/geo';
 import SocialImporter from './SocialImporter';
 import MapSection from './MapSection';
 
@@ -113,7 +113,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onUpdate, onDelete, userCoord
   // --- Handlers: Expenses ---
   const handleAddItem = (category: string) => {
     const newItem: TripItem = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       nombre: '',
       coste: 0,
       pagado: false,
@@ -159,7 +159,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onUpdate, onDelete, userCoord
 
   // --- Handlers: Itinerary ---
   const handleAddItineraryItem = (date: string) => {
-      const newItem: ItineraryItem = { id: crypto.randomUUID(), texto: '', completado: false };
+      const newItem: ItineraryItem = { id: generateUUID(), texto: '', completado: false };
       const current = trip.itinerario[date] || [];
       onUpdate({ ...trip, itinerario: { ...trip.itinerario, [date]: [...current, newItem] } });
   };
@@ -179,7 +179,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onUpdate, onDelete, userCoord
   const handleAddLocation = (lat: number, lng: number) => {
     const name = prompt("Nombre del lugar:", "Nuevo Punto");
     if (!name) return;
-    const newLoc: LocationPoint = { id: crypto.randomUUID(), lat, lng, name, type: 'interest' };
+    const newLoc: LocationPoint = { id: generateUUID(), lat, lng, name, type: 'interest' };
     onUpdate({ ...trip, locations: [...trip.locations, newLoc] });
     setIsAddingLocation(false);
   };

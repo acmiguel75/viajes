@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/4/4e/Pleiades_large.jpg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#3b82f6" />
     <title>Viajeros en Familia Pro</title>
     
@@ -26,6 +26,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- ES Module Shims: Critical for mobile support (iOS < 16.4) -->
+    <script async src="https://ga.jspm.io/npm:es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -42,6 +45,7 @@
       body {
         background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 50%, #e0f2fe 100%);
         min-height: 100vh;
+        overscroll-behavior-y: none; /* Prevents pull-to-refresh on mobile */
       }
       .glass-panel {
           background: rgba(255, 255, 255, 0.7);
@@ -78,6 +82,16 @@
 </head>
   <body>
     <div id="root"></div>
+    <div id="error-display" style="display:none; padding: 20px; color: red; background: white; margin: 20px; border-radius: 8px;"></div>
+    
+    <script>
+      window.addEventListener('error', function(e) {
+        const errorDiv = document.getElementById('error-display');
+        errorDiv.style.display = 'block';
+        errorDiv.innerHTML = '<h3>Error Detectado:</h3><p>' + e.message + '</p>';
+      });
+    </script>
+    
     <script type="module" src="./index.tsx"></script>
   </body>
 </html>

@@ -1,3 +1,21 @@
+// Robust UUID generator that works on all mobiles (even insecure contexts)
+export const generateUUID = (): string => {
+  // Try native API first if available and secure
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    try {
+      return crypto.randomUUID();
+    } catch (e) {
+      // Fallback if it fails
+    }
+  }
+  
+  // Fallback for older browsers / non-secure contexts
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 6371e3; // metres
   const φ1 = (lat1 * Math.PI) / 180;

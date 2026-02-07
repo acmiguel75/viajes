@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SocialLink, Trip } from '../types';
-import { getPlatformFromUrl, getYoutubeId } from '../utils/geo';
+import { getPlatformFromUrl, getYoutubeId, generateUUID } from '../utils/geo';
 
 interface SocialImporterProps {
   trip: Trip;
@@ -43,7 +43,7 @@ const SocialImporter: React.FC<SocialImporterProps> = ({ trip, onUpdate, incomin
     }
 
     const newLink: SocialLink = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       url: urlInput,
       platform: platform,
       note: noteInput || 'Interés turístico',
