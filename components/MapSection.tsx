@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { LocationPoint } from '../types';
@@ -15,11 +15,29 @@ const icon = L.icon({
   shadowSize: [41, 41]
 });
 
+// User location icon (Blue Dot)
+const userIcon = L.divIcon({
+  className: 'custom-user-icon',
+  html: '<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10]
+});
+
 interface MapSectionProps {
   locations: LocationPoint[];
   onAddLocation: (lat: number, lng: number) => void;
   isAddingMode: boolean;
+  userCoords: GeolocationCoordinates | null;
 }
+
+// Component to handle auto-centering
+const RecenterMap = ({ center, zoom }: { center: [number, number], zoom: number }) => {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
+  return null;
+};
 
 const LocationMarker = ({ onAddLocation, isAddingMode }: { onAddLocation: (lat: number, lng: number) => void, isAddingMode: boolean }) => {
   const map = useMap();
@@ -42,18 +60,33 @@ const LocationMarker = ({ onAddLocation, isAddingMode }: { onAddLocation: (lat: 
   return null;
 };
 
-const MapSection: React.FC<MapSectionProps> = ({ locations, onAddLocation, isAddingMode }) => {
-  const center = locations.length > 0 
-    ? [locations[0].lat, locations[0].lng] as [number, number] 
-    : DEFAULT_COORDS;
+const MapSection: React.FC<MapSectionProps> = ({ locations, onAddLocation, isAddingMode, userCoords }) => {
+  // Logic: 
+  // 1. If locations exist, center on the first one.
+  // 2. If no locations but userCoords exist, center on user.
+  // 3. Fallback to default.
+  
+  let center: [number, number] = DEFAULT_COORDS;
+  let zoom = 6; // Default zoom (country level)
+
+  if (locations.length > 0) {
+    center = [locations[0].lat, locations[0].lng];
+    zoom = 13; // City level
+  } else if (userCoords) {
+    center = [userCoords.latitude, userCoords.longitude];
+    zoom = 13; // City level (User location)
+  }
 
   return (
     <div className="h-[400px] w-full rounded-2xl overflow-hidden border border-white/50 shadow-inner relative z-0">
-      <MapContainer center={center} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+      <MapContainer center={center} zoom={zoom} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+        <RecenterMap center={center} zoom={zoom} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        
+        {/* Render Saved Locations */}
         {locations.map((loc) => (
           <Marker key={loc.id} position={[loc.lat, loc.lng]} icon={icon}>
             <Popup>
@@ -64,6 +97,14 @@ const MapSection: React.FC<MapSectionProps> = ({ locations, onAddLocation, isAdd
             </Popup>
           </Marker>
         ))}
+
+        {/* Render User Location */}
+        {userCoords && (
+           <Marker position={[userCoords.latitude, userCoords.longitude]} icon={userIcon}>
+              <Popup>¡Estás aquí!</Popup>
+           </Marker>
+        )}
+
         <LocationMarker onAddLocation={onAddLocation} isAddingMode={isAddingMode} />
       </MapContainer>
       

@@ -58,6 +58,26 @@ const SocialImporter: React.FC<SocialImporterProps> = ({ trip, onUpdate, incomin
     if (onClearShare) onClearShare();
   };
 
+  const handlePasteClipboard = async () => {
+    try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+            // Try to extract URL from text if mixed
+            const urlMatch = text.match(/(https?:\/\/[^\s]+)/g);
+            if (urlMatch) {
+                setUrlInput(urlMatch[0]);
+                // If there was extra text, use it as note
+                const extra = text.replace(urlMatch[0], '').trim();
+                if (extra) setNoteInput(extra.substring(0, 50));
+            } else {
+                setUrlInput(text);
+            }
+        }
+    } catch (err) {
+        alert("Permite el acceso al portapapeles o pega el enlace manualmente.");
+    }
+  };
+
   const deleteLink = (id: string) => {
     const updatedTrip = { ...trip, socialLinks: trip.socialLinks.filter(l => l.id !== id) };
     onUpdate(updatedTrip);
@@ -89,27 +109,39 @@ const SocialImporter: React.FC<SocialImporterProps> = ({ trip, onUpdate, incomin
 
       <div className={`flex flex-col gap-3 mb-6 p-4 rounded-xl transition-all ${incomingShare ? 'bg-pink-50 border-2 border-pink-200 animate-pulse' : 'bg-transparent'}`}>
         {incomingShare && <div className="text-xs font-bold text-pink-600 mb-1">✨ Detectado contenido compartido:</div>}
-        <div className="flex flex-col md:flex-row gap-3">
-            <input 
-            type="text" 
-            value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
-            placeholder="Pega enlace de TikTok, Instagram o YouTube..."
-            className="flex-grow bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition"
-            />
-            <input 
-            type="text" 
-            value={noteInput}
-            onChange={(e) => setNoteInput(e.target.value)}
-            placeholder="Nota (ej: Restaurante chulo)"
-            className="md:w-1/3 bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-400 transition"
-            />
-            <button 
-            onClick={handleImport}
-            className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-pink-200 flex items-center justify-center gap-2 whitespace-nowrap"
-            >
-            <i className="ph-bold ph-plus"></i> Guardar
-            </button>
+        <div className="flex flex-col gap-3">
+             {/* iOS Helper */}
+             <div className="flex justify-end md:hidden">
+                <button 
+                  onClick={handlePasteClipboard}
+                  className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-full flex items-center gap-1 transition"
+                >
+                    <i className="ph-bold ph-clipboard"></i> Pegar enlace copiado
+                </button>
+             </div>
+
+            <div className="flex flex-col md:flex-row gap-3">
+                <input 
+                type="text" 
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                placeholder="Pega enlace de TikTok, Instagram o YouTube..."
+                className="flex-grow bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition"
+                />
+                <input 
+                type="text" 
+                value={noteInput}
+                onChange={(e) => setNoteInput(e.target.value)}
+                placeholder="Nota (ej: Restaurante chulo)"
+                className="md:w-1/3 bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-400 transition"
+                />
+                <button 
+                onClick={handleImport}
+                className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-pink-200 flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                <i className="ph-bold ph-plus"></i> Guardar
+                </button>
+            </div>
         </div>
       </div>
 
