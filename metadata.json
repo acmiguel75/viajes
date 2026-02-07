@@ -1,0 +1,7 @@
+{
+  "name": "Viajeros en Familia Pro",
+  "description": "Advanced family trip planner with social media imports, expense tracking, and geolocation proximity alerts.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
